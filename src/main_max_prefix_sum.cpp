@@ -32,14 +32,6 @@ void calcMaxSumOnGpu(ocl::Kernel& sum, ocl::Kernel& sumFirst, int n, const gpu::
     sumFirst.exec(gpu::WorkSize(workGroupSize, global_work_size), as_gpu, n,
                   s_gpu, max_sum_gpu, max_pos_gpu);
 
-    std::vector<int> sum_all(res_size);
-    std::vector<int> mx(res_size);
-    std::vector<int> pos_mx(res_size);
-
-    s_gpu.read(sum_all.data(), res_size * sizeof(int));
-    max_sum_gpu.read(mx.data(), res_size * sizeof(int));
-    max_pos_gpu.read(pos_mx.data(), res_size * sizeof(int));
-
     gpu::gpu_mem_32i in_s_gpu;
     gpu::gpu_mem_32i in_max_sum_gpu;
     gpu::gpu_mem_32i in_max_pos_gpu;
@@ -49,21 +41,17 @@ void calcMaxSumOnGpu(ocl::Kernel& sum, ocl::Kernel& sumFirst, int n, const gpu::
     while (res_size > 1) {
         n = res_size;
         res_size = ((n - 1) / workGroupSize + 1);
-        in_s_gpu.write(sum_all.data(), n * sizeof(int));
-        in_max_sum_gpu.write(mx.data(), n * sizeof(int));
-        in_max_pos_gpu.write(pos_mx.data(), n * sizeof(int));
+
+        in_s_gpu.swap(s_gpu);
+        in_max_sum_gpu.swap(max_sum_gpu);
+        in_max_pos_gpu.swap(max_pos_gpu);
 
         global_work_size = (n + workGroupSize - 1) / workGroupSize * workGroupSize;
         sum.exec(gpu::WorkSize(workGroupSize, global_work_size), in_s_gpu, in_max_sum_gpu, in_max_pos_gpu, n,
                  s_gpu, max_sum_gpu, max_pos_gpu);
-
-        s_gpu.read(sum_all.data(), res_size * sizeof(int));
-        max_sum_gpu.read(mx.data(), res_size * sizeof(int));
-        max_pos_gpu.read(pos_mx.data(), res_size * sizeof(int));
     }
-
-    s = mx[0];
-    res = pos_mx[0];
+    max_sum_gpu.read(&s, sizeof(int));
+    max_pos_gpu.read(&res, sizeof(int));
 }
 
 int main(int argc, char** argv) {
