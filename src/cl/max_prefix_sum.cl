@@ -22,7 +22,11 @@ __kernel void sum_first(__global const int* xs,
         int s = 0;
         int mx = 0;
         int pos_mx = 0;
-        for (int i = 0; i < WORK_GROUP_SIZE; ++i) {
+        int k = WORK_GROUP_SIZE;
+        if (k > n - g_id) {
+            k = n - g_id;
+        }
+        for (int i = 0; i < k; ++i) {
             s += local_xs[i];
             if (s > mx) {
                 mx = s;
@@ -60,7 +64,11 @@ __kernel void max_prefix_sum(__global const int* in_sum,
         int s = 0;
         int mx = 0;
         int pos_mx = 0;
-        for (int i = 0; i < WORK_GROUP_SIZE; ++i) {
+        int k = WORK_GROUP_SIZE;
+        if (k > n - g_id) {
+            k = n - g_id;
+        }
+        for (int i = 0; i < k; ++i) {
             if (s + local_max_sum[i] > mx) {
                 mx = s + local_max_sum[i];
                 pos_mx = local_max_pos[i];

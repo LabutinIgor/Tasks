@@ -43,14 +43,14 @@ void calcMaxSumOnGpu(ocl::Kernel& sum, ocl::Kernel& sumFirst, int n, const gpu::
     gpu::gpu_mem_32i in_s_gpu;
     gpu::gpu_mem_32i in_max_sum_gpu;
     gpu::gpu_mem_32i in_max_pos_gpu;
+    in_s_gpu.resize(res_size * sizeof(int));
+    in_max_sum_gpu.resize(res_size * sizeof(int));
+    in_max_pos_gpu.resize(res_size * sizeof(int));
     while (res_size > 1) {
         n = res_size;
         res_size = ((n - 1) / workGroupSize + 1);
-        in_s_gpu.resize(n * sizeof(int));
         in_s_gpu.write(sum_all.data(), n * sizeof(int));
-        in_max_sum_gpu.resize(n * sizeof(int));
         in_max_sum_gpu.write(mx.data(), n * sizeof(int));
-        in_max_pos_gpu.resize(n * sizeof(int));
         in_max_pos_gpu.write(pos_mx.data(), n * sizeof(int));
 
         global_work_size = (n + workGroupSize - 1) / workGroupSize * workGroupSize;
