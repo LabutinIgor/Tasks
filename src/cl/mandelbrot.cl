@@ -8,7 +8,7 @@ __kernel void mandelbrot(__global float* as,
                          unsigned int width, unsigned int height,
                          float fromX, float fromY,
                          float sizeX, float sizeY,
-                         unsigned int iters, bool smoothing) {
+                         unsigned int iters, int smoothing) {
     const float threshold = 256.0f;
     const float threshold2 = threshold * threshold;
 
@@ -31,7 +31,7 @@ __kernel void mandelbrot(__global float* as,
         }
     }
     float result = iter;
-    if (smoothing && iter != iters) {
+    if (smoothing == 1 && iter != iters) {
         result = result - log(log(sqrt(x * x + y * y)) / log(threshold)) / log(2.0f);
     }
 
