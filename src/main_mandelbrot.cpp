@@ -208,11 +208,12 @@ void renderInWindow(float centralX, float centralY, unsigned int iterationsLimit
                           sizeX, sizeY,
                           iterationsLimit, true);
         } else {
+            int smoothing = 0;
             kernel.exec(gpu::WorkSize(16, 16, width, height),
                         results_vram, width, height,
                         centralX - sizeX / 2.0f, centralY - sizeY / 2.0f,
                         sizeX, sizeY,
-                        iterationsLimit, 1);
+                        iterationsLimit, smoothing);
             results_vram.readN(results.ptr(), width * height);
         }
         renderToColor(results.ptr(), image.ptr(), width, height);
