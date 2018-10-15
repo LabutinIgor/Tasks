@@ -111,6 +111,7 @@ int main(int argc, char **argv)
     gpu::Context context;
     context.init(device.device_id_opencl);
     context.activate();
+    int smoothing = 0;
     {
         ocl::Kernel kernel(mandelbrot_kernel, mandelbrot_kernel_length, "mandelbrot");
         // Если у вас есть интеловский драйвер для запуска на процессоре - попробуйте запустить на нем и взгляние на лог,
@@ -132,7 +133,7 @@ int main(int argc, char **argv)
                           as_gpu, width, height,
                           centralX - sizeX / 2.0f, centralY - sizeY / 2.0f,
                           sizeX, sizeY,
-                          iterationsLimit, false);
+                          iterationsLimit, smoothing);
             t.nextLap();
         }
         size_t flopsInLoop = 10;
