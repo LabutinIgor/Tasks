@@ -67,18 +67,17 @@ int main(int argc, char** argv) {
 
             t.restart(); // Запускаем секундомер после прогрузки данных чтобы замерять время работы кернела, а не трансфер данных
 
-            unsigned int workGroupSize = 128;
+            unsigned int workGroupSize = 256;
             unsigned int global_work_size = (n + workGroupSize - 1) / workGroupSize * workGroupSize;
+            int d0 = 7;
+            assert((1 << (d0 + 1)) <= workGroupSize);
             for (int i = 0; i < log_n; i++) {
-                for (int j = 0; j <= i; j++) {
-                    if ((1 << (i - j + 1)) <= workGroupSize) {
-                        bitonic_local.exec(gpu::WorkSize(workGroupSize, global_work_size),
-                                     as_gpu, n, i, j);
-                    } else {
-                        bitonic.exec(gpu::WorkSize(workGroupSize, global_work_size),
-                                           as_gpu, n, i, j);
-                    }
+                for (int j = 0; j <= i - d0; j++) {
+                    bitonic.exec(gpu::WorkSize(workGroupSize, global_work_size),
+                                 as_gpu, n, i, j);
                 }
+                bitonic_local.exec(gpu::WorkSize(workGroupSize, global_work_size),
+                                   as_gpu, n, i, (int) fmax(0, i - d0 + 1));
             }
             t.nextLap();
         }
